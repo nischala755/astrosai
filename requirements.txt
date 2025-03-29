@@ -22,3 +22,4 @@ streamlit-autorefresh
 streamlit-extras
 streamlit-timeline
 altair
+opencv-python-headless
