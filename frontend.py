@@ -21,7 +21,6 @@ import os
 import scipy
 import networkx as nx
 import google.generativeai as genai
-from stmol import showmol
 import py3Dmol
 import matplotlib.colors as mcolors
 from matplotlib.animation import FuncAnimation
@@ -584,61 +583,34 @@ def process_voice_command(command):
     return response
 
 def get_3d_habitat_visualization():
-    """Generate a 3D visualization of the space habitat."""
-    # This would ideally be a complex 3D model, but for simplicity, we'll create a basic 3D plot
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection='3d')
-
-    # Create a cylinder (main habitat body)
-    theta = np.linspace(0, 2*np.pi, 100)
-    z = np.linspace(-3, 3, 100)
-    theta, z = np.meshgrid(theta, z)
-    r = 1
-    x = r * np.cos(theta)
-    y = r * np.sin(theta)
-
-    # Plot the main cylinder
-    ax.plot_surface(x, y, z, color='silver', alpha=0.7)
-
+    """Generate a 3D visualization of the space habitat using py3Dmol."""
+    view = py3Dmol.view()
+    view.setBackgroundColor('black')
+    
+    # Add main habitat cylinder
+    view.addCylinder({
+        'center': {'x': 0, 'y': 0, 'z': 0},
+        'radius': 1,
+        'length': 6,
+        'color': 'silver'
+    })
+    
+    # Add command module sphere
+    view.addSphere({
+        'center': {'x': 0, 'y': 0, 'z': 3.5},
+        'radius': 0.7,
+        'color': 'gold'
+    })
+    
     # Add solar panels
-    panel_x = np.array([[-3, -3], [3, 3]])
-    panel_y = np.array([[-0.5, 0.5], [-0.5, 0.5]])
-    panel_z = np.array([[0, 0], [0, 0]])
-    ax.plot_surface(panel_x, panel_y, panel_z, color='blue', alpha=0.6)
-
-    # Add a sphere for the command module
-    u = np.linspace(0, 2 * np.pi, 100)
-    v = np.linspace(0, np.pi, 100)
-    x = 0.7 * np.outer(np.cos(u), np.sin(v)) + 0
-    y = 0.7 * np.outer(np.sin(u), np.sin(v)) + 0
-    z = 0.7 * np.outer(np.ones(np.size(u)), np.cos(v)) + 3.5
-    ax.plot_surface(x, y, z, color='gold', alpha=0.7)
-
-    # Remove axis labels and ticks
-    ax.set_xlabel('')
-    ax.set_ylabel('')
-    ax.set_zlabel('')
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_zticks([])
-
-    # Set limits
-    ax.set_xlim([-3, 3])
-    ax.set_ylim([-3, 3])
-    ax.set_zlim([-3, 3])
-
-    # Set the view angle
-    ax.view_init(elev=20, azim=45)
-
-    # Set a dark background
-    ax.set_facecolor((0.1, 0.1, 0.2))
-    fig.patch.set_facecolor((0.1, 0.1, 0.2))
-
-    # Convert to a plotly figure for better interactivity
-    buf = BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', transparent=True)
-    buf.seek(0)
-    return buf
+    view.addBox({
+        'center': {'x': 0, 'y': 0, 'z': 0},
+        'dimensions': {'w': 6, 'h': 1, 'd': 0.1},
+        'color': 'blue'
+    })
+    
+    view.zoomTo()
+    return view
 
 # Main Interface Components
 def render_sidebar():
